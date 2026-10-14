@@ -4,6 +4,25 @@
 
 ## 1. 安装环境
 
+### 已有 Anaconda / Miniconda 环境
+
+先在 Anaconda Prompt 激活自己的环境，例如：
+
+```powershell
+conda activate pytorch
+python -c "import sys; print(sys.executable)"
+python scripts/check_environment.py
+python -m unittest discover -s tests -v
+```
+
+以上脚本在项目目录中运行。检查通过后直接使用该环境，后续命令中的 `.\.venv\Scripts\python.exe` 改为 `python`。在 VS Code 的 `Python: Select Interpreter` 中选择同一个 Conda 环境。
+
+PowerShell 中也可以用完整解释器路径调用脚本，例如 `& "D:\anaconda_envs\pytorch\python.exe" scripts/check_environment.py`。路径按个人安装位置调整。
+
+当前本机已验证 Python 3.11 + PyTorch 2.11 + torchvision 0.26（CUDA 12.8）的 GPU 前向、反向及优化器更新。该环境可用于本地开发，正式模型提交前仍需在赛事指定的 Python 3.12 + PyTorch 2.10 + torchvision 0.25 环境验证。现有环境中运行安装清单可能改变包版本，请先确认是否需要切换到赛事版本。
+
+### 尚未准备环境
+
 推荐 Python 3.12。Windows PowerShell 在项目目录中运行：
 
 ```powershell

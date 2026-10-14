@@ -8,6 +8,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--allow-cpu", action="store_true", help="Permit CPU checks on teammates' non-GPU computers")
     args = parser.parse_args()
+    print("Interpreter:", sys.executable)
     print("Python:", sys.version)
     try:
         import torch
