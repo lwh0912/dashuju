@@ -4,7 +4,35 @@
 
 ## 1. 安装环境
 
-### 已有 Anaconda / Miniconda 环境
+### 使用 Anaconda / Miniconda 创建比赛环境
+
+在项目目录的 Anaconda Prompt 中运行下面的命令。独立环境避免改变其他项目的依赖：
+
+```powershell
+conda create -n dashuju2026 --override-channels -c conda-forge python=3.12 pip -y
+conda activate dashuju2026
+python -m pip install -r requirements-cu128.txt
+python -m pip install -r requirements.txt
+python -m pip check
+python scripts/check_environment.py
+python -m unittest discover -s tests -v
+```
+
+环境已经创建后，只需 `conda activate dashuju2026`，无需重复创建或安装。后续文档中 `.\.venv\Scripts\python.exe` 均可替换为激活环境后的 `python`。
+
+如果 Conda 出现旧插件导入错误，可在本次创建命令中禁用插件并使用 classic 求解器：
+
+```powershell
+conda --no-plugins create --solver classic -n dashuju2026 --override-channels -c conda-forge python=3.12 pip -y
+```
+
+软件版本依据：[赛事官方说明](https://www.ncccu.org.cn/index/Paper/case2.html)中的 Python 3.12、PyTorch 2.10.0、torchvision 0.25.0、CUDA 12.8 和 cuDNN 9。CUDA 版 PyTorch 包包含所需运行库；是否能够在本机工作，以环境检查实际完成 GPU 运算为准。
+
+2026-10-15 本机已创建 `D:\anaconda_envs\dashuju2026`，实测 Python 3.12.15、PyTorch 2.10.0+cu128、torchvision 0.25.0+cu128、CUDA 12.8、cuDNN 9.10.2。依赖检查、GPU 前向/反向/参数更新和 5 项数据读取测试全部通过。环境版本记录保存在本机 `outputs/environment/dashuju2026.json`，完整 pip 版本清单保存在同目录的 `dashuju2026-pip-freeze.txt`。
+
+本机使用 RTX 5060 Laptop GPU（约 8GB 显存）；赛事列出的评测硬件为 T4 16GB。正式提交模型前仍需核验评测环境中的推理兼容性与速度。
+
+### 检查其他已有环境
 
 先在 Anaconda Prompt 激活自己的环境，例如：
 
@@ -15,11 +43,11 @@ python scripts/check_environment.py
 python -m unittest discover -s tests -v
 ```
 
-以上脚本在项目目录中运行。检查通过后直接使用该环境，后续命令中的 `.\.venv\Scripts\python.exe` 改为 `python`。在 VS Code 的 `Python: Select Interpreter` 中选择同一个 Conda 环境。
+以上脚本在项目目录中运行。检查通过说明该环境能够完成小批次计算；仍需核对输出中的版本是否符合赛事要求。在 VS Code 的 `Python: Select Interpreter` 中选择比赛环境。
 
 PowerShell 中也可以用完整解释器路径调用脚本，例如 `& "D:\anaconda_envs\pytorch\python.exe" scripts/check_environment.py`。路径按个人安装位置调整。
 
-当前本机已验证 Python 3.11 + PyTorch 2.11 + torchvision 0.26（CUDA 12.8）的 GPU 前向、反向及优化器更新。该环境可用于本地开发，正式模型提交前仍需在赛事指定的 Python 3.12 + PyTorch 2.10 + torchvision 0.25 环境验证。现有环境中运行安装清单可能改变包版本，请先确认是否需要切换到赛事版本。
+例如 Python 3.11 + PyTorch 2.11 + torchvision 0.26 即使能够使用 GPU，也与本赛事指定版本不同。建议使用独立的 `dashuju2026` 环境。
 
 ### 尚未准备环境
 

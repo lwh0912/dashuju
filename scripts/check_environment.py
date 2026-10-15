@@ -19,6 +19,7 @@ def main():
         return 1
     print("PyTorch:", torch.__version__, "torchvision:", torchvision.__version__)
     print("CUDA runtime:", torch.version.cuda, "available:", torch.cuda.is_available())
+    print("cuDNN:", torch.backends.cudnn.version())
     if not torch.cuda.is_available() and not args.allow_cpu:
         print("FAIL: GPU not available. Use --allow-cpu only for a CPU check.")
         return 1
