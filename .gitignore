@@ -1,0 +1,29 @@
+# Local environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.env
+.env.*
+!.env.example
+
+# Local data, reports, weights and machine-specific paths
+/data/
+/datasets/
+/outputs/
+/checkpoints/
+/tmp/
+/configs/*.local.json
+*.zip
+*.7z
+*.rar
+*.tar
+*.gz
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.onnx
+.DS_Store
+Thumbs.db
