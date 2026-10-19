@@ -27,3 +27,10 @@ __pycache__/
 *.onnx
 .DS_Store
 Thumbs.db
+
+# Personal project memory and machine-specific working notes
+/AGENTS.md
+/docs/member-b-plan.md
+/docs/member-b-container-setup.md
+/docs/member-b-powershell-setup.md
+/docs/competition-qa-2026-10-19.md
