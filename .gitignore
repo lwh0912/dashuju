@@ -34,3 +34,7 @@ Thumbs.db
 /docs/member-b-container-setup.md
 /docs/member-b-powershell-setup.md
 /docs/competition-qa-2026-10-19.md
+
+# A training configuration overrides
+/code/configs/*.local.yaml
+/code/configs/*.local.yml

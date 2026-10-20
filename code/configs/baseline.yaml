@@ -1,0 +1,28 @@
+# 基线配置 v2：ResNet18 / 224x224 / 预训练(ImageNet，已获赛务书面许可)
+# 训练与最终推理的预处理必须与本文件一致。
+experiment_name: baseline_resnet18
+seed: 42
+data_root: /workspace/datasets/glaucoma_first
+output_dir: ../outputs/r18_224_pre_s42_run01
+train_csv: train.csv
+valid_csv: valid.csv
+image_size: 224                 # H=W
+resize_mode: resize             # 或 center_crop 等，写清
+normalize:
+  mean: [0.485, 0.456, 0.406]
+  std: [0.229, 0.224, 0.225]
+batch_size: 64
+eval_batch_size: 128
+num_workers: 8                  # 本机 8 核；调试期可设 0；Windows 下确保主入口保护
+amp: true
+pos_weight: true                # 类别加权 BCE（阳性:阴性≈1:30），正式损失对照由 B 负责
+epochs: 10
+optimizer:
+  name: adamw
+  lr: 0.0003                    # 预训练模型用较小学习率
+  weight_decay: 0.0001
+lr_scheduler: cosine            # 余弦退火，T_max=epochs
+save_best_by: valid_auroc       # best.pt 的选取依据，记录对应 epoch
+model:
+  name: resnet18
+  pretrained: true              # 2026-10-19 赛务确认允许开源预训练
