@@ -1,0 +1,2 @@
+# Install after the repository root requirements.txt; required by src/train.py.
+PyYAML==6.0.3
