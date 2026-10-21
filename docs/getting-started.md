@@ -2,6 +2,8 @@
 
 当前已提供数据读取、数据检查和环境检查。完整训练、预测、指标计算尚待实现。
 
+2026-10-21 更新：已有容器以 [团队环境说明](team-environment.md) 为日常入口；下文 Conda/venv 是替代或从零准备路线，不要在已验收容器重复安装。A 的基线已提交 PR #2，尚未合入 main 验收，不能据此认为完整团队链路已完成。
+
 ## 1. 安装环境
 
 ### 使用 Anaconda / Miniconda 创建比赛环境
@@ -28,7 +30,7 @@ conda --no-plugins create --solver classic -n dashuju2026 --override-channels -c
 
 软件版本依据：[赛事官方说明](https://www.ncccu.org.cn/index/Paper/case2.html)中的 Python 3.12、PyTorch 2.10.0、torchvision 0.25.0、CUDA 12.8 和 cuDNN 9。CUDA 版 PyTorch 包包含所需运行库；是否能够在本机工作，以环境检查实际完成 GPU 运算为准。
 
-2026-10-15 本机已创建 `D:\anaconda_envs\dashuju2026`，实测 Python 3.12.15、PyTorch 2.10.0+cu128、torchvision 0.25.0+cu128、CUDA 12.8、cuDNN 9.10.2。依赖检查、GPU 前向/反向/参数更新和 5 项数据读取测试全部通过。环境版本记录保存在本机 `outputs/environment/dashuju2026.json`，完整 pip 版本清单保存在同目录的 `dashuju2026-pip-freeze.txt`。
+2026-10-15 已完成本地 Conda 环境验收，实测 Python 3.12.15、PyTorch 2.10.0+cu128、torchvision 0.25.0+cu128、CUDA 12.8、cuDNN 9.10.2。依赖检查、GPU 前向/反向/参数更新和 5 项数据读取测试全部通过。环境版本记录保存在本机 `outputs/environment/dashuju2026.json`，完整 pip 版本清单保存在同目录的 `dashuju2026-pip-freeze.txt`。
 
 本机使用 RTX 5060 Laptop GPU（约 8GB 显存）；赛事列出的评测硬件为 T4 16GB。正式提交模型前仍需核验评测环境中的推理兼容性与速度。
 
@@ -45,7 +47,7 @@ python -m unittest discover -s tests -v
 
 以上脚本在项目目录中运行。检查通过说明该环境能够完成小批次计算；仍需核对输出中的版本是否符合赛事要求。在 VS Code 的 `Python: Select Interpreter` 中选择比赛环境。
 
-PowerShell 中也可以用完整解释器路径调用脚本，例如 `& "D:\anaconda_envs\pytorch\python.exe" scripts/check_environment.py`。路径按个人安装位置调整。
+PowerShell 中也可以用完整解释器路径调用脚本，例如 `& "D:\path\to\conda-env\python.exe" scripts/check_environment.py`。路径按个人安装位置调整。
 
 例如 Python 3.11 + PyTorch 2.11 + torchvision 0.26 即使能够使用 GPU，也与本赛事指定版本不同。建议使用独立的 `dashuju2026` 环境。
 
@@ -82,7 +84,7 @@ CPU 检查成功只表示 CPU 环境可运行，不表示 GPU 已就绪。版本
 Copy-Item configs/paths.example.json configs/paths.local.json
 ```
 
-编辑 `configs/paths.local.json` 中的 `data_root`，填写本机实际路径。JSON 中推荐使用 `/`，例如 `D:/dashuju_data/glaucoma_first`。
+编辑 `configs/paths.local.json` 中的 `data_root`，填写本机实际路径。JSON 中推荐使用 `/`，例如 `D:/path/to/glaucoma_first`。
 
 数据目录应包含：
 
@@ -110,7 +112,7 @@ glaucoma_first/
 也可以明确传入目录，并与原始 ZIP 的清单和文件大小进行对照：
 
 ```powershell
-.\.venv\Scripts\python.exe scripts/audit_dataset.py --data-root "D:\dashuju_data\glaucoma_first" --archive "D:\dashuju_data\glaucoma_first.zip"
+.\.venv\Scripts\python.exe scripts/audit_dataset.py --data-root "D:\path\to\glaucoma_first" --archive "D:\path\to\glaucoma_first.zip"
 ```
 
 默认报告输出到 `outputs/data-audit/report.md` 和 `report.json`，不会被 Git 跟踪。检查失败时退出码非零，详细原因保留在报告中。

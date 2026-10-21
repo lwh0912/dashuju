@@ -1,0 +1,3 @@
+# Recorded container additions; C validates changes, B merges after review.
+-c configs/environment/container-core-constraints.txt
+-r configs/environment/container-extras.lock.txt
