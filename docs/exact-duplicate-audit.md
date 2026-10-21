@@ -1,6 +1,6 @@
 # 图片字节内容查重
 
-队员 B 的数据质量任务；原图、标签和官方划分不改动。代码在 `codex/exact-duplicate-audit` 分支交付，由 C 复核后集成。范围及当前进度见 [数据审计交接](data-audit-handoff.md)。
+队员 B 的数据质量任务；原图、标签和官方划分不改动。代码从 `codex/exact-duplicate-audit` 交付；后续由 A/C 至少一人复核 B 的改动，再由 B 统一合并。范围及当前进度见 [数据审计交接](data-audit-handoff.md)。
 
 ## 方法与边界
 
