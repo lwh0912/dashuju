@@ -1,0 +1,35 @@
+{
+  "status": "PREPARED_NOT_EFFICACY_VALIDATED",
+  "data_version": "official-unchanged-v1-20261020",
+  "a_baseline_commit": "de53102644c166c484c1c4bece99ea09cf7a8643",
+  "base": {
+    "seed": 42,
+    "train_csv": "train.csv",
+    "valid_csv": "valid.csv",
+    "image_size": 224,
+    "resize_mode": "resize",
+    "normalize": {"mean": [0.485, 0.456, 0.406], "std": [0.229, 0.224, 0.225]},
+    "batch_size": 64,
+    "eval_batch_size": 128,
+    "num_workers": 8,
+    "drop_last": true,
+    "amp": true,
+    "epochs": 10,
+    "optimizer": {"name": "adamw", "lr": 0.0003, "weight_decay": 0.0001},
+    "lr_scheduler": "cosine",
+    "save_best_by": "valid_auroc",
+    "model": {"name": "resnet18", "pretrained": true},
+    "augmentation": {"augment": false}
+  },
+  "variants": {
+    "B0_bce": {"data_strategy": "bce"},
+    "B1_mild": {
+      "data_strategy": "bce",
+      "augmentation": {"augment": true, "horizontal_flip": 0.5, "rotation_degrees": 5.0, "brightness": 0.1, "contrast": 0.1, "saturation": 0.1, "crop_min_fraction": 1.0}
+    },
+    "B2_pos_weight": {"data_strategy": "pos_weight"},
+    "B3_oversample": {"data_strategy": "oversample"},
+    "B4_focal": {"data_strategy": "focal", "focal_gamma": 2.0},
+    "B5_undersample": {"data_strategy": "undersample", "negative_to_positive": 10.0}
+  }
+}
