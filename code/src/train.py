@@ -3,13 +3,13 @@
 已交付能力：
 - 固定随机种子（torch / numpy / random）；
 - --config 驱动全部路径与超参，禁止硬编码个人路径；
-- 正式训练循环（接入 B 前的 _tmp 数据管线）：
+- 正式训练循环（已接入 B 数据、采样与损失模块）：
   BCEWithLogitsLoss（支持类别权重，应对 3.2% 阳性不均衡，
   正式采样/损失对照由 B 负责）+ AMP + AdamW + 余弦学习率
   + 按 valid AUROC 保存 best.pt（记录对应 epoch）；
 - checkpoint 保存/模型重载（含配置与指标，不支持完整断点续训）；--selftest 随机张量自测。
 
-对接约定（与 B/C 对齐后替换 _tmp 实现）：
+对接约定（数据已接入 B；评估待 C 统一）：
 - Dataset 返回 image / label / image_name；
 - 模型输出 logits [B]，标签 [B] 为 0/1，BCE 前不 sigmoid；
 - 评估用概率算 AUROC/AUPRC（C 交付统一评估后替换 sklearn 临时实现）。
@@ -151,35 +151,20 @@ def train(cfg: dict, train_batches: int | None = None,
     device = "cuda" if torch.cuda.is_available() else "cpu"
     use_amp = cfg.get("amp", True) and device == "cuda"
     out_dir = Path(cfg["output_dir"])
+    if any((out_dir / name).exists() for name in ("best.pt", "best_auprc.pt", "last.pt", "history.json")):
+        raise FileExistsError("Experiment outputs already exist; choose a new output_dir")
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    # --- 数据（临时 _tmp 管线；B 交付后替换为 src.data 正式 Dataset）---
-    from src._tmp.minidata import CSVDataset
-
-    norm = cfg["normalize"]
-    train_ds = CSVDataset(cfg["data_root"], cfg["train_csv"], cfg["image_size"],
-                          tuple(norm["mean"]), tuple(norm["std"]))
-    valid_ds = CSVDataset(cfg["data_root"], cfg["valid_csv"], cfg["image_size"],
-                          tuple(norm["mean"]), tuple(norm["std"]))
-    g = torch.Generator(); g.manual_seed(cfg["seed"])
-    train_ld = DataLoader(train_ds, batch_size=cfg["batch_size"], shuffle=True,
-                          num_workers=cfg["num_workers"], pin_memory=True,
-                          drop_last=True, generator=g)
-    valid_ld = DataLoader(valid_ds, batch_size=cfg.get("eval_batch_size", 64),
-                          shuffle=False, num_workers=cfg["num_workers"],
-                          pin_memory=True)
+    # B's bundle owns datasets, transforms, sampling and loss construction.
+    from src.data.pipeline import build_training_bundle
+    bundle = build_training_bundle(cfg)
+    train_ld, valid_ld = bundle.train_loader, bundle.valid_loader
+    cfg["data_pipeline"] = bundle.metadata
 
     # --- 模型 / 损失 / 优化器 ---
     model = build_model(cfg["model"]["name"],
                         pretrained=cfg["model"]["pretrained"]).to(device)
-    pos = int((train_ds.df["True_Label"] == 1).sum())
-    neg = len(train_ds.df) - pos
-    if pos == 0 or neg == 0:
-        raise ValueError("Training data must include both classes")
-    if len(train_ld) == 0:
-        raise ValueError("Training batch_size exceeds dataset size with drop_last=True")
-    pos_weight = torch.tensor([neg / pos], device=device) if cfg.get("pos_weight", True) else None
-    criterion = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight)
+    criterion = bundle.criterion.to(device)
     optimizer = build_optimizer(model, cfg)
     epochs = cfg["epochs"]
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs)

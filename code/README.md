@@ -1,6 +1,6 @@
 # A 的 v1 训练基线
 
-提供 ResNet18/ResNet50/EfficientNet-B0 二分类训练。当前使用 `_tmp` Dataset 与 sklearn 评估，尚未对接 B/C 统一接口，无正式测试推理或融合入口。保留根目录已有数据审计工具。
+提供 ResNet18/ResNet50/EfficientNet-B0 二分类训练。已接入 B 正式 Dataset、增强、采样及损失模块；评估暂用 sklearn，待 C 统一，无正式测试推理或融合入口。保留根目录已有数据审计工具。
 
 在仓库根目录安装额外依赖：
 ```bash
@@ -34,7 +34,7 @@ AdamW + 可选 pos_weight=训练集 neg/pos 的 BCE + CUDA AMP + 余弦调度。
 
 checkpoint 支持模型重载，不包含优化器/调度器/scaler/RNG 状态，不支持完整断点续训。加载已有权重时先以 pretrained=False 建模，避免额外下载。预训练使用 torchvision DEFAULT；当前 ResNet18 为 IMAGENET1K_V1，其他候选的具体权重枚举需登记。
 
-临时 Dataset 仍强制要求 True_Label，不能直接用于无标签 test。对接时应复用根目录 src/glaucoma/data.py 的记录接口，图像用 Record.path，身份用 Record.image_name。暂勿删除仍被训练入口引用的 _tmp。
+训练入口已调用 build_training_bundle，保存实际策略及数据身份到 config.data_pipeline。支持 bce/pos_weight/oversample/focal/undersample，增强独立开关。Dataset 支持无标签 test，但完整测试推理入口仍待 C 交付。_tmp 仅保留历史参考。已有实验产物的输出目录会被拒绝，防止覆盖。
 
 ## 测试与历史结果
 
@@ -42,7 +42,7 @@ checkpoint 支持模型重载，不包含优化器/调度器/scaler/RNG 状态�
 ```bash
 OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 ../.venv/bin/python -m unittest discover -s tests -v
 ```
-三项回归检查覆盖文件名映射及歧义、last 元数据与验证预测、拒绝未实现配置。原有 25 项测试从仓库根目录运行。
+共 13 项测试；A 的三项回归检查覆盖文件名映射及歧义、last 元数据与验证预测、拒绝未实现配置。原有 25 项测试从仓库根目录运行。
 
 A 提供的历史记录（非本次重训）：
 

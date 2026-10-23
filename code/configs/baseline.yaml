@@ -15,7 +15,10 @@ batch_size: 64
 eval_batch_size: 128
 num_workers: 8                  # 本机 8 核；调试期可设 0；Windows 下确保主入口保护
 amp: true
-pos_weight: true                # 类别加权 BCE（阳性:阴性≈1:30），正式损失对照由 B 负责
+data_strategy: pos_weight       # B2：加权 BCE，与 A 原基线对应
+augmentation:
+  augment: false
+drop_last: true
 epochs: 10
 optimizer:
   name: adamw
